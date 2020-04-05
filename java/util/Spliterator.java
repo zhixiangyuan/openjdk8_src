@@ -300,7 +300,7 @@ public interface Spliterator<T> {
      * Spliterator is {@link #ORDERED} the action is performed on the
      * next element in encounter order.  Exceptions thrown by the
      * action are relayed to the caller.
-     *
+     * 对单个元素执行 action 操作，如果有剩余元素则返回 true，没有则返回 false
      * @param action The action
      * @return {@code false} if no remaining elements existed
      * upon entry to this method, else {@code true}.
@@ -314,7 +314,7 @@ public interface Spliterator<T> {
      * throws an exception.  If this Spliterator is {@link #ORDERED}, actions
      * are performed in encounter order.  Exceptions thrown by the action
      * are relayed to the caller.
-     *
+     * 利用 {@link #tryAdvance} 方法来遍历集合中剩下的所有元素
      * @implSpec
      * The default implementation repeatedly invokes {@link #tryAdvance} until
      * it returns {@code false}.  It should be overridden whenever possible.
@@ -388,7 +388,7 @@ public interface Spliterator<T> {
      * that of its parent; if the root Spliterator does not maintain an
      * accurate count, it could estimate size to be the power of two
      * corresponding to its maximum depth.
-     *
+     * 评估还剩下多少个元素
      * @return the estimated size, or {@code Long.MAX_VALUE} if infinite,
      *         unknown, or too expensive to compute.
      */
@@ -426,7 +426,7 @@ public interface Spliterator<T> {
      * may differ from the characteristics after splitting.  For specific
      * examples see the characteristic values {@link #SIZED}, {@link #SUBSIZED}
      * and {@link #CONCURRENT}.
-     *
+     * 返回该迭代器的特征，每一位表示一个特征
      * @return a representation of characteristics
      */
     int characteristics();
@@ -438,7 +438,7 @@ public interface Spliterator<T> {
      * @implSpec
      * The default implementation returns true if the corresponding bits
      * of the given characteristics are set.
-     *
+     * 判断迭代器是否有指定的特征
      * @param characteristics the characteristics to check for
      * @return {@code true} if all the specified characteristics are present,
      * else {@code false}
@@ -464,14 +464,14 @@ public interface Spliterator<T> {
     default Comparator<? super T> getComparator() {
         throw new IllegalStateException();
     }
-
+    // 以下是特征的定义
     /**
      * Characteristic value signifying that an encounter order is defined for
      * elements. If so, this Spliterator guarantees that method
      * {@link #trySplit} splits a strict prefix of elements, that method
      * {@link #tryAdvance} steps by one element in prefix order, and that
      * {@link #forEachRemaining} performs actions in encounter order.
-     *
+     * 是否有定义顺序，如果定义了顺序，则按照顺序执行和分裂
      * <p>A {@link Collection} has an encounter order if the corresponding
      * {@link Collection#iterator} documents an order. If so, the encounter
      * order is the same as the documented order. Otherwise, a collection does
@@ -582,14 +582,14 @@ public interface Spliterator<T> {
      *
      * @param <T> the type of elements returned by this Spliterator.  The
      * type must be a wrapper type for a primitive type, such as {@code Integer}
-     * for the primitive {@code int} type.
+     * for the primitive {@code int} type. 元素类型
      * @param <T_CONS> the type of primitive consumer.  The type must be a
      * primitive specialization of {@link java.util.function.Consumer} for
      * {@code T}, such as {@link java.util.function.IntConsumer} for
-     * {@code Integer}.
+     * {@code Integer}.  与元素类型匹配的 Consumer
      * @param <T_SPLITR> the type of primitive Spliterator.  The type must be
      * a primitive specialization of Spliterator for {@code T}, such as
-     * {@link Spliterator.OfInt} for {@code Integer}.
+     * {@link Spliterator.OfInt} for {@code Integer}.  OfPrimitive 的子类，也就是他自己
      *
      * @see Spliterator.OfInt
      * @see Spliterator.OfLong

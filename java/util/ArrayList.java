@@ -1314,10 +1314,10 @@ public class ArrayList<E> extends AbstractList<E>
          * these streamlinings.
          */
 
-        private final ArrayList<E> list;
-        private int index; // current index, modified on advance/split
-        private int fence; // -1 until used; then one past last index
-        private int expectedModCount; // initialized when fence set
+        private final ArrayList<E> list;  // 用于存放数据
+        private int index; // current index, modified on advance/split // 起始位置（包含），advance/split 操作时会修改
+        private int fence; // -1 until used; then one past last index  // 结束位置（不包含），-1 表示到最后一个元素
+        private int expectedModCount; // initialized when fence set    // 用于存放 list 的 modCount
 
         /** Create new spliterator covering the given  range */
         ArrayListSpliterator(ArrayList<E> list, int origin, int fence,
@@ -1327,51 +1327,51 @@ public class ArrayList<E> extends AbstractList<E>
             this.fence = fence;
             this.expectedModCount = expectedModCount;
         }
-
+        /** 获取结束位置（存在意义：首次初始化时需对 fence 和 expectedModCount 进行赋值） */
         private int getFence() { // initialize fence to size on first use
             int hi; // (a specialized variant appears in method forEach)
             ArrayList<E> lst;
-            if ((hi = fence) < 0) {
-                if ((lst = list) == null)
+            if ((hi = fence) < 0) {          // fence < 0，第一次初始化时，fence 才会小于 0
+                if ((lst = list) == null)    // list 为 null 时，fence = 0
                     hi = fence = 0;
-                else {
+                else {                       // 否则，fence = list 的长度
                     expectedModCount = lst.modCount;
                     hi = fence = lst.size;
                 }
             }
             return hi;
         }
-
+        /** 分割 list，返回一个新分割出的 spliterator 实例 */
         public ArrayListSpliterator<E> trySplit() {
-            int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;
-            return (lo >= mid) ? null : // divide range in half unless too small
-                new ArrayListSpliterator<E>(list, lo, index = mid,
+            int hi = getFence(), lo = index, mid = (lo + hi) >>> 1;                  // hi 为当前结束位置 // lo 起始位置 // mid = ( hi + lo ) / 2 即为中间位置
+            return (lo >= mid) ? null : // divide range in half unless too small     // 当 lo >= mid 时，表示不能再分割
+                new ArrayListSpliterator<E>(list, lo, index = mid,                   // 当 lo < mid 时，可分割，分割 [lo, mid) 出去，同时更新 index
                                             expectedModCount);
         }
-
+        /** 剩余处理元素 */
         public boolean tryAdvance(Consumer<? super E> action) {
             if (action == null)
                 throw new NullPointerException();
-            int hi = getFence(), i = index;
-            if (i < hi) {
-                index = i + 1;
-                @SuppressWarnings("unchecked") E e = (E)list.elementData[i];
-                action.accept(e);
-                if (list.modCount != expectedModCount)
+            int hi = getFence(), i = index;                      // hi 为结束位置 // i 为起始位置
+            if (i < hi) {                                        // 当 i < hi 时还有元素需要处理
+                index = i + 1;                                   // 更新 index 为 i + 1
+                @SuppressWarnings("unchecked") E e = (E)list.elementData[i];        // 获取 i 上的元素
+                action.accept(e);                                // 使用用户定义的操作处理该元素
+                if (list.modCount != expectedModCount)           // 数据发生修改则抛出异常
                     throw new ConcurrentModificationException();
                 return true;
             }
             return false;
         }
-
+        /** 顺序遍历处理所有剩下的元素 */
         public void forEachRemaining(Consumer<? super E> action) {
             int i, hi, mc; // hoist accesses and checks from loop
             ArrayList<E> lst; Object[] a;
             if (action == null)
                 throw new NullPointerException();
             if ((lst = list) != null && (a = lst.elementData) != null) {
-                if ((hi = fence) < 0) {
-                    mc = lst.modCount;
+                if ((hi = fence) < 0) {                                   // 当 fence < 0 时，表示 fence 和 expectedModCount 未初始化
+                    mc = lst.modCount;                                    // 这里可以思考能否直接调用 getFence()
                     hi = lst.size;
                 }
                 else
@@ -1379,19 +1379,19 @@ public class ArrayList<E> extends AbstractList<E>
                 if ((i = index) >= 0 && (index = hi) <= a.length) {
                     for (; i < hi; ++i) {
                         @SuppressWarnings("unchecked") E e = (E) a[i];
-                        action.accept(e);
+                        action.accept(e);                                 // 调用用户函数处理元素
                     }
-                    if (lst.modCount == mc)
+                    if (lst.modCount == mc)                               // 遍历时发生结构变更时抛出异常
                         return;
                 }
             }
             throw new ConcurrentModificationException();
         }
-
+        /** 评估剩余元素 */
         public long estimateSize() {
             return (long) (getFence() - index);
         }
-
+        /** 返回特征值，总共包含三项 */
         public int characteristics() {
             return Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED;
         }

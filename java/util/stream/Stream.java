@@ -633,7 +633,7 @@ public interface Stream<T> extends BaseStream<T, Stream<T>> {
      *
      * <p>This is a <a href="package-summary.html#StreamOps">terminal
      * operation</a>.
-     *
+     * {@link BinaryOperator} 函数的第一个参数是 Stream 的第一个元素，第二次迭代时，Stream 的第一个元素为上一次结果的返回值
      * @param accumulator an <a href="package-summary.html#Associativity">associative</a>,
      *                    <a href="package-summary.html#NonInterference">non-interfering</a>,
      *                    <a href="package-summary.html#Statelessness">stateless</a>

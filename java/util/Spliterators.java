@@ -980,12 +980,12 @@ public final class Spliterators {
     /**
      * A Spliterator.OfInt designed for use by sources that traverse and split
      * elements maintained in an unmodifiable {@code int[]} array.
-     */
+     */// 与 ArrayList 不同的是，array 是实现声明的，因此不必担心遍历过程中发生结构变更
     static final class IntArraySpliterator implements Spliterator.OfInt {
         private final int[] array; // 指向原数组的 array
         private int index;        // current index, modified on advance/split // 分组迭代的起始下标（包括）
         private final int fence;  // one past last index // 分组迭代的结束下标（不包括）
-        private final int characteristics; // 分组迭代的特征
+        private final int characteristics; // 记录特征值
 
         /**
          * Creates a spliterator covering all of the given array.

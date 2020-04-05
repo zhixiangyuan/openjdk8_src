@@ -141,7 +141,7 @@ public interface Comparator<T> {
      * @param o2 the second object to be compared.
      * @return a negative integer, zero, or a positive integer as the
      *         first argument is less than, equal to, or greater than the
-     *         second.
+     *         second.  负数：o1 < o2，零：o1 == o2，正数：o1 > o2
      * @throws NullPointerException if an argument is null and this
      *         comparator does not permit null arguments
      * @throws ClassCastException if the arguments' types prevent them from
@@ -466,7 +466,7 @@ public interface Comparator<T> {
     {
         Objects.requireNonNull(keyExtractor);
         return (Comparator<T> & Serializable)
-            (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2));
+            (c1, c2) -> keyExtractor.apply(c1).compareTo(keyExtractor.apply(c2)); // 这个匿名方法就是 compare
     }
 
     /**
